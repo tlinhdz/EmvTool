@@ -78,7 +78,7 @@ fun app() {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Enable Cache"
+                            text = "Cache"
                         )
 
                         Spacer(modifier = Modifier.weight(1F))
@@ -112,8 +112,8 @@ fun ModeSwitcher(mode: Mode) {
     when (mode) {
         Mode.DECODE_DOL -> DOLDecoder()
         Mode.DECODE_TLV -> TLVDecoder()
-        Mode.DECODE_TVR -> TLVDecoder()
-        Mode.DECODE_TSI -> TLVDecoder()
+        Mode.DECODE_TVR -> TVRDecoder()
+        Mode.DECODE_TSI -> TSIDecoder()
     }
 }
 

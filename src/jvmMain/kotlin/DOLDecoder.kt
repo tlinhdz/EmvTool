@@ -18,6 +18,7 @@ fun DOLDecoder() {
     var dol by remember { mutableStateOf("") }
     var apduData by remember { mutableStateOf("") }
     var value by remember { mutableStateOf(AnnotatedString("")) }
+    var warning by remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
@@ -56,18 +57,25 @@ fun DOLDecoder() {
             singleLine = false
         )
 
+        if (warning)
+            Text(text = warningMessage("Please fill in valid value"))
+
         Spacer(modifier = Modifier.height(32.dp))
 
         GradientButton(
             onClick = {
                 coroutineScope.launch {
-                    value = decodeDOL(dol.trim(), apduData.trim())
-                    Cache.saveToCache(
-                        Mode.DECODE_DOL.value,
-                        CacheData.DOLCache(dol = dol.trim(), data = apduData.trim())
-                    )
+                    if (dol.isBlank() || apduData.isBlank())
+                        warning = true
+                    else {
+                        value = decodeDOL(dol.trim(), apduData.trim())
+                        Cache.saveToCache(
+                            Mode.DECODE_DOL.value,
+                            CacheData.DOLCache(dol = dol.trim(), data = apduData.trim())
+                        )
 
-                    scrollState.animateScrollTo(scrollState.maxValue)
+                        scrollState.animateScrollTo(scrollState.maxValue)
+                    }
                 }
             },
             text = "Decode"

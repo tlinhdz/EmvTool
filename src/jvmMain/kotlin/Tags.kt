@@ -1,3 +1,5 @@
+import androidx.compose.ui.text.toUpperCase
+
 object Tags {
     private var tagDictionary: Map<String, String> = mapOf(
         "9F01" to "Acquirer Identifier",
@@ -122,7 +124,134 @@ object Tags {
         "9F23" to "Upper Consecutive Offline Limit",
         "9F7C" to "Customer Exclusive Data",
     )
-    fun getTags(name: String): String {
-        return tagDictionary[name] ?: "Unsupported Tag"
+
+    private var tvrBit: Array<Array<String>> = arrayOf(
+        arrayOf(
+            "Offline data authentication was not performed",
+            "SDA failed",
+            "ICC data missing",
+            "Card number appears on terminal exception file",
+            "DDA failed",
+            "CDA failed",
+            "SDA selected",
+            "RFU",
+        ),
+        arrayOf(
+            "Card and terminal have different application versions",
+            "Expired application",
+            "Application not yet effective",
+            "Requested service not allowed for card product",
+            "New Card",
+            "RFU",
+            "RFU",
+            "RFU",
+        ),
+        arrayOf(
+            "Cardholder verification was not successful",
+            "Unrecognised CVM",
+            "PIN try limit exceeded",
+            "PIN entry required, but no PIN pad present or not working",
+            "PIN entry required, PIN pad present, but PIN was not entered",
+            "Online PIN entered",
+            "RFU",
+            "RFU",
+        ),
+        arrayOf(
+            "Transaction exceeds floor limit",
+            "Lower consecutive offline limit exceeded",
+            "Upper consecutive offline limit exceeded",
+            "Transaction selected randomly of online processing",
+            "Merchant forced transaction online",
+            "RFU",
+            "RFU",
+            "RFU",
+        ),
+        arrayOf(
+            "Default TDOL Used",
+            "Issuer authentication failed",
+            "Script processing failed before final Generate AC",
+            "Script processing failed after final Generate AC",
+            "Relay resistance threshold exceeded (Contactless Kernel 2)",
+            "Relay resistance time limits exceeded (Contactless Kernel 2)",
+            "Relay resistance protocol not supported (Contactless Kernel 2)",
+            "Relay resistance protocol not performed (Contactless Kernel 2)",
+            "Relay resistance protocol performed (Contactless Kernel 2)",
+            "RFU",
+        ),
+    )
+
+    private var tsiBit: Array<Array<String>> = arrayOf(
+        arrayOf(
+            "Offline data authentication performed",
+            "Cardholder verification performed",
+            "Card risk management performed",
+            "Issuer authentication performed",
+            "Terminal risk management performed",
+            "Script processing performed",
+            "RFU",
+            "RFU",
+        ),
+        arrayOf(
+            "RFU",
+            "RFU",
+            "RFU",
+            "RFU",
+            "RFU",
+            "RFU",
+            "RFU",
+            "RFU",
+        ),
+    )
+
+    private var ascciValueTag: Array<String> = arrayOf(
+        "5F20",
+        "8A"
+    )
+
+    fun getTagName(name: String): String {
+        return tagDictionary[name.toUpperCase()] ?: "Unsupported Tag"
     }
+
+    fun getTagValue(tag: String, value: String): Pair<String, String> {
+        return when {
+            isASCIIValueTag(tag) ->
+                Pair(
+                    tag,
+                    value.chunked(2)
+                        .map { it.toInt(16).toByte() }
+                        .toByteArray()
+                        .toString(Charsets.ISO_8859_1)
+                )
+
+            else ->
+                Pair(tag, value)
+        }
+    }
+
+    fun getTVRBitMeaning(byteIndex: Int, bitIndex: Int, bitValue: String = ""): String {
+        if (byteIndex >= 5 || bitIndex >= 8)
+            return ""
+
+        // bit relay resistance for kernel 2
+        if (byteIndex == 4 && (bitIndex == 6 || bitIndex == 7)) {
+            return when (bitValue) {
+                "00" -> tvrBit[4][6]
+                "01" -> tvrBit[4][7]
+                "10" -> tvrBit[4][8]
+                "11" -> tvrBit[4][9]
+                else -> tvrBit[4][9]
+            }
+        }
+
+        return tvrBit[byteIndex][bitIndex]
+    }
+
+    fun getTSIBitMeaning(byteIndex: Int, bitIndex: Int): String {
+        if (byteIndex >= 2 || bitIndex >= 8)
+            return ""
+
+        return tsiBit[byteIndex][bitIndex]
+    }
+
+    private fun isASCIIValueTag(tag: String) = tag.toUpperCase() in ascciValueTag
 }
