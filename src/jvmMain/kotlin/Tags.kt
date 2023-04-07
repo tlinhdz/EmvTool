@@ -1,5 +1,3 @@
-import androidx.compose.ui.text.toUpperCase
-
 object Tags {
     private var tagDictionary: Map<String, String> = mapOf(
         "9F01" to "Acquirer Identifier",
@@ -123,6 +121,7 @@ object Tags {
         "9F37" to "Unpredictable Number",
         "9F23" to "Upper Consecutive Offline Limit",
         "9F7C" to "Customer Exclusive Data",
+        "9F51" to "Application Currency Code",
     )
 
     private var tvrBit: Array<Array<String>> = arrayOf(
@@ -209,7 +208,7 @@ object Tags {
     )
 
     fun getTagName(name: String): String {
-        return tagDictionary[name.toUpperCase()] ?: "Unsupported Tag"
+        return tagDictionary[name.uppercase()] ?: "Unsupported Tag"
     }
 
     fun getTagValue(tag: String, value: String): Pair<String, String> {
@@ -253,5 +252,5 @@ object Tags {
         return tsiBit[byteIndex][bitIndex]
     }
 
-    private fun isASCIIValueTag(tag: String) = tag.toUpperCase() in ascciValueTag
+    private fun isASCIIValueTag(tag: String) = tag.uppercase() in ascciValueTag
 }
