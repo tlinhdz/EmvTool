@@ -49,7 +49,14 @@ fun decodeTLV(data: String): AnnotatedString {
                 tag += tlvData.squish(2)
             }
 
-            val length = tlvData.squish(2).toInt(16)
+            val length = tlvData.squish(2).let {
+                if (it.toInt(16) <= 0x7F) it else tlvData.squish(2)
+            }
+                .toInt(16)
+
+            if (Tags.isTemplateTag(tag))
+                continue
+
             val value = tlvData.squish(length * 2)
 
             tagArray.add(Tags.getTagValue(tag, value))

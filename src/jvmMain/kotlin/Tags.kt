@@ -179,6 +179,15 @@ object Tags {
         ),
     )
 
+    private var templateTags: List<String> = listOf(
+        "6F",
+        "A5",
+        "BF0C",
+        "61",
+        "70",
+        "77",
+    )
+
     private var tsiBit: Array<Array<String>> = arrayOf(
         arrayOf(
             "Offline data authentication performed",
@@ -252,5 +261,6 @@ object Tags {
         return tsiBit[byteIndex][bitIndex]
     }
 
+    fun isTemplateTag(tag: String): Boolean = tag in templateTags
     private fun isASCIIValueTag(tag: String) = tag.uppercase() in ascciValueTag
 }
